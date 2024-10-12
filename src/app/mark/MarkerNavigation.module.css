@@ -1,0 +1,57 @@
+/* components/MarkerNavigation.module.css */
+
+.container {
+	display: flex;
+}
+
+.gradientBlock {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 152px;
+	height: 152px;
+	background: linear-gradient(180deg, #febc1b, #ffc740);
+	border-top-left-radius: 24px;
+	border-bottom-left-radius: 24px;
+}
+
+.number {
+	color: white;
+	font-size: 69px;
+	font-weight: bold;
+	line-height: 103.5px;
+	text-align: center;
+}
+
+.darkBlock {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 287px;
+	height: 152px;
+	background-color: #35383f;
+	border-top-right-radius: 24px;
+	border-bottom-right-radius: 24px;
+}
+
+.label {
+	color: white;
+	font-size: 48px;
+	font-weight: 600;
+	text-align: left;
+}
+
+.test {
+	background: conic-gradient(
+		#ff0000 0%,
+		#ff0000 25%,
+		#00ff00 25%,
+		#00ff00 50%,
+		#0000ff 50%,
+		#0000ff 75%,
+		#ff0000 75%,
+		#ff0000 100%
+	);
+	filter: brightness(1.5) contrast(0.83) saturate(1.4) hue-rotate(-19.6deg)
+		sepia(0.43) brightness(1.55) contrast(1.63);
+}

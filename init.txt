@@ -1,0 +1,234 @@
+// import { Effect } from "@/interface/Effect";
+// import { FrameProps } from "@/interface/Frame";
+// import { Fill, GradientPosition } from "@/interface/Paint";
+// import { createElement } from 'react';
+
+// export class Frame {
+//     boundingBox: Rectangle;
+//     rotation?: number;
+//     borderRadius?: number;
+//     borderWidth?: number;
+//     borderRadii?: number[];
+//     strokes: Fill[];
+//     fill: Fill[];
+//     thumbnailUrl?: string;
+//     strokeDashes?: number[];
+//     individualStrokeWeights?: {
+//         top: number;
+//         right: number;
+//         bottom: number;
+//         left: number;
+//     };
+//     effect?: Effect[];
+//     paddingLeft?: number;
+//     paddingRight?: number;
+//     paddingTop?: number;
+//     paddingBottom?: number;
+//     gap?: number; //gap
+//     layoutMode?: "HORIZONTAL" | "VERTICAL"; // flex direction
+//     layoutWrap?: "NO_WRAP" | "WRAP"; // flex wrap
+//     counterAxisAlignItems?: "CENTER" | "MAX";
+//     primaryAxisAlignItems?: "CENTER" | "MAX";
+//     counterAxisSpacing?: number;
+//     counterAxisAlignContent?: "AUTO";
+//     children: FrameProps[];
+//     frame: FrameProps;
+
+//     constructor(frame: FrameProps, image?: string) {
+//         this.frame = frame;
+//         this.boundingBox = frame?.absoluteBoundingBox;
+//         this.fill = frame?.fills;
+//         this.strokes = frame?.strokes;
+//         this.boundingBox = frame?.absoluteBoundingBox;
+//         this.rotation = frame?.rotation
+//         this.borderRadius = frame?.cornerRadius;
+//         this.borderWidth = frame?.strokes.length > 0 ? frame?.strokeWeight : 0;
+//         this.borderRadii = frame?.rectangleCornerRadii;
+//         this.fill = frame?.fills;
+//         this.strokes = frame?.strokes;
+//         this.strokeDashes = frame?.strokeDashes;
+//         this.individualStrokeWeights = frame?.individualStrokeWeights;
+//         this.effect = frame?.effects;
+//         this.paddingLeft = frame?.paddingLeft;
+//         this.paddingRight = frame?.paddingRight;
+//         this.paddingTop = frame?.paddingTop;
+//         this.paddingBottom = frame?.paddingBottom;
+//         this.gap = frame?.itemSpacing;
+//         this.layoutMode = frame?.layoutMode;
+//         this.layoutWrap = frame?.layoutWrap;
+//         this.counterAxisAlignItems = frame?.counterAxisAlignItems;
+//         this.primaryAxisAlignItems = frame?.primaryAxisAlignItems;
+//         this.counterAxisSpacing = frame?.counterAxisSpacing;
+//         this.counterAxisAlignContent = frame?.counterAxisAlignContent;
+//         this.children = frame?.children;
+
+//     }
+
+
+//     setBackground(fill: Fill[]) {
+//         if (fill[0].type === 'SOLID') {
+//             return `rgba(${fill[0].color.r * 255}, ${fill[0].color.g * 255}, ${fill[0].color.b * 255}, ${fill[0].color.a})`
+//         }
+//         else if (fill[0].type === 'GRADIENT_LINEAR') {
+//             const fills = fill[0].gradientStops.map((stop) => {
+//                 return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
+//             });
+//             return `linear-gradient(${this.calculateGradientDirection(fill[0].gradientHandlePositions)}deg, ${fills.join(', ')})`;
+//         }
+//         else if (fill[0].type === 'GRADIENT_RADIAL') {
+//             const fills = fill[0].gradientStops.map((stop) => {
+//                 return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
+//             });
+//             return `radial-gradient(${this.determineGradientShapeAndCenter(fill[0].gradientHandlePositions)}, ${fills.join(', ')})`;
+//         }
+//         else if (fill[0].type === 'GRADIENT_ANGULAR') {
+//             const fills = fill[0].gradientStops.map((stop) => {
+//                 return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
+//             });
+//             return `conic-gradient(${fills.join(', ')})`;
+//         }
+//         else if (fill[0].type === 'GRADIENT_DIAMOND') {
+//             const fills = fill[0].gradientStops.map((stop) => {
+//                 return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
+//             });
+//             return `linear-gradient( ${fills.join(', ')})`;
+//         }
+//         // else if (fill[0].type === 'IMAGE') {
+//         //     console.log(this.thumbnailUrl);
+//         //     return `url(${this.thumbnailUrl})`;
+//         // }
+//         return '';
+//     }
+//     calculateGradientDirection(gradientHandlePositions: GradientPosition[]) {
+//         {
+//             if (gradientHandlePositions.length < 2) {
+//                 throw new Error("At least two gradient handle positions are required.");
+//             }
+
+//             const start = gradientHandlePositions[0];
+//             const end = gradientHandlePositions[1];
+
+//             // Calculate the vector
+//             const vectorX = end.x - start.x;
+//             const vectorY = end.y - start.y;
+
+//             // Calculate the angle in radians and convert to degrees
+//             const angleInRadians = Math.atan2(vectorY, vectorX);
+//             const angleInDegrees = (angleInRadians * 180) / Math.PI;
+
+//             return Math.round(angleInDegrees) + 90;
+
+//         }
+//     }
+//     determineGradientShapeAndCenter(gradientHandlePositions: GradientPosition[]) {
+//         if (!gradientHandlePositions || gradientHandlePositions.length < 2) {
+//             throw new Error('Insufficient handle positions');
+//         }
+
+//         // Determine the center of the gradient
+//         const centerHandle = gradientHandlePositions[0];
+//         const centerX = Number(centerHandle.x.toFixed(2));
+//         const centerY = Number(centerHandle.y.toFixed(2));
+
+//         // Determine if the gradient is circle or ellipse
+//         const distancesFromCenter = gradientHandlePositions.slice(2).map(handle => {
+//             console.log(handle);
+//             return Math.sqrt(Math.pow(Number(handle.x.toFixed(2)) - centerX, 2) + Math.pow(Number(handle.y.toFixed(2)) - centerY, 2));
+//         });
+//         // console.log(distancesFromCenter);
+
+//         // Assume circle if all distances are approximately the same
+//         const tolerance = 0.01; // tolerance for floating-point comparison
+//         const firstDistance = distancesFromCenter[0];
+//         const isCircle = distancesFromCenter.every(distance => Math.abs(distance - firstDistance) < tolerance);
+
+//         // Determine shape
+//         const shape = isCircle ? 'circle' : 'ellipse';
+
+//         return shape;
+//     }
+//     getBoxShadown(effects: Effect[]) {
+//         const shadow = effects[0];
+//         if (shadow?.type === 'DROP_SHADOW') {
+//             return `${shadow.offset?.x}px ${shadow.offset?.y}px ${shadow.radius}px ${shadow.spread}px rgba(${shadow.color?.r * 255}, ${shadow.color?.g * 255}, ${shadow.color?.b * 255}, ${shadow.color?.a})`;
+//         }
+//         else if (shadow?.type === 'INNER_SHADOW') {
+//             return `${shadow.offset?.x}px ${shadow.offset?.y}px ${shadow.radius}px ${shadow.spread}px rgba(${shadow.color?.r * 255}, ${shadow.color?.g * 255}, ${shadow.color?.b * 255}, ${shadow.color?.a}) inset`;
+//         }
+//         else if (shadow?.type === 'BACKGROUND_BLUR') {
+//             return `${shadow.radius}px`;
+//         }
+//         return 'none';
+
+//     }
+
+//     private CreateReactElement(frame: FrameProps) {
+//         this.boundingBox = frame.absoluteBoundingBox;
+//         this.fill = frame?.fills;
+//         this.strokes = frame?.strokes;
+//         this.boundingBox = frame?.absoluteBoundingBox;
+//         this.rotation = frame?.rotation
+//         this.borderRadius = frame?.cornerRadius;
+//         this.borderWidth = frame?.strokes.length > 0 ? frame?.strokeWeight : 0;
+//         this.borderRadii = frame?.rectangleCornerRadii;
+//         this.fill = frame?.fills;
+//         this.strokes = frame?.strokes;
+//         this.strokeDashes = frame?.strokeDashes;
+//         this.individualStrokeWeights = frame?.individualStrokeWeights;
+//         this.effect = frame?.effects;
+//         this.paddingLeft = frame?.paddingLeft;
+//         this.paddingRight = frame?.paddingRight;
+//         this.paddingTop = frame?.paddingTop;
+//         this.paddingBottom = frame?.paddingBottom;
+//         this.gap = frame?.itemSpacing;
+//         this.layoutMode = frame?.layoutMode;
+//         this.layoutWrap = frame?.layoutWrap;
+//         this.counterAxisAlignItems = frame?.counterAxisAlignItems;
+//         this.primaryAxisAlignItems = frame?.primaryAxisAlignItems;
+//         this.counterAxisSpacing = frame?.counterAxisSpacing;
+//         this.counterAxisAlignContent = frame?.counterAxisAlignContent;
+//         // Define a React functional component
+
+//         return createElement('div', {
+//             style: {
+//                 width: this.boundingBox.width,
+//                 height: this.boundingBox.height,
+//                 position: 'relative',
+//                 left: this.boundingBox.x - this.boundingBox.x,
+//                 top: this.boundingBox.y - this.boundingBox.y,
+//                 transform: `rotate(${this.rotation}rad)`,
+//                 borderTopLeftRadius: this.borderRadii ? this.borderRadii[0] : this.borderRadius,
+//                 borderTopRightRadius: this.borderRadii ? this.borderRadii[1] : this.borderRadius,
+//                 borderBottomRightRadius: this.borderRadii ? this.borderRadii[2] : this.borderRadius,
+//                 borderBottomLeftRadius: this.borderRadii ? this.borderRadii[3] : this.borderRadius,
+//                 background: this.setBackground(this.fill),
+//                 opacity: this.fill[0].opacity,
+//                 borderTopWidth: `${this.individualStrokeWeights ? this.individualStrokeWeights.top : this.borderWidth}px`,
+//                 borderRightWidth: `${this.individualStrokeWeights ? this.individualStrokeWeights.right : this.borderWidth}px`,
+//                 borderBottomWidth: `${this.individualStrokeWeights ? this.individualStrokeWeights.bottom : this.borderWidth}px`,
+//                 borderLeftWidth: `${this.individualStrokeWeights ? this.individualStrokeWeights.left : this.borderWidth}px`,
+//                 borderColor: this.strokes.length > 0 ? this.setBackground(this.strokes) : "none",
+//                 borderStyle: this.strokeDashes ? 'dashed' : 'solid',
+//                 boxShadow: this.effect ? this.getBoxShadown(this.effect) : 'none',
+//                 filter: this.effect && this.effect[0]?.type === "LAYER_BLUR" ? `blur(${this.effect[0].radius}px)` : 'none',
+//                 backdropFilter: this.effect && this.effect[0]?.type === "BACKGROUND_BLUR" ? `blur(${this.effect[0].radius}px)` : 'none',
+//                 display: this.layoutMode && 'flex',
+//                 flexDirection: this.layoutMode && this.layoutMode === 'VERTICAL' ? 'column' : 'row',
+//                 flexWrap: this.layoutWrap === 'NO_WRAP' ? 'nowrap' : 'wrap',
+//                 justifyContent: this.primaryAxisAlignItems === 'CENTER' ? 'center' : this.primaryAxisAlignItems === 'MAX' ? 'end' : 'start',
+//                 alignItems: this.counterAxisAlignItems === 'CENTER' ? 'center' : this.counterAxisAlignItems === 'MAX' ? 'end' : 'start',
+//                 gap: this.gap ? this.gap : 0,
+//                 padding: `${this.paddingTop}px ${this.paddingRight}px ${this.paddingBottom}px ${this.paddingLeft}px`,
+//                 alignContent: this.counterAxisAlignContent === 'AUTO' ? 'stretch' : 'flex-start',
+//                 columnGap: this.counterAxisSpacing ? this.counterAxisSpacing : 0,
+//                 rowGap: this.counterAxisSpacing ? this.counterAxisSpacing : 0,
+//             },
+//         }, )
+//     }
+//     CreateChildren(children: FrameProps[]): JSX.Element[] {
+//         return children.map((child) => {
+//             let Div = new Frame(child);
+//             return Div.CreateReactElement(child);
+//         });
+//     }
+// }

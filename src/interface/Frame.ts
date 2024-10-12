@@ -34,5 +34,5 @@ export interface FrameProps {
     counterAxisAlignContent?: "AUTO",
     children: FrameProps[];
     visible: boolean;
-
+    opacity?: number;
 }

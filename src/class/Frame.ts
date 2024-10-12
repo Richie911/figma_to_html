@@ -36,6 +36,7 @@ export class Frame {
     frame: FrameProps;
     visible: boolean;
     type: "FRAME" | "RECTANGLE" | "ELLIPSE" | "VECTOR" | "REGULAR_POLYGON";
+    opacity?: number;
 
 
     constructor(frame: FrameProps, image?: string) {
@@ -64,6 +65,7 @@ export class Frame {
         this.children = frame?.children || [];
         this.visible = frame?.visible;
         this.type = frame?.type;
+        this.opacity = frame?.opacity;
     }
     private setBackground(fill: Fill[]) {
         if (fill[0]?.type === 'SOLID') {
@@ -178,7 +180,7 @@ export class Frame {
                     borderBottomRightRadius: this.type === 'ELLIPSE' ? '50%' : this.borderRadii ? `${this.borderRadii[2]}px` : `${this.borderRadius}px`,
                     borderBottomLeftRadius: this.type === 'ELLIPSE' ? '50%' : this.borderRadii ? `${this.borderRadii[3]}px` : `${this.borderRadius}px`,
                     background: this.type === "REGULAR_POLYGON" ? 'none' : this.setBackground(this.fill),
-                    opacity: this.fill[0]?.opacity || 1,
+                    opacity: this.fill[0]?.opacity || this.opacity || 1,
                     borderTopWidth: `${this.individualStrokeWeights?.top || this.borderWidth}px`,
                     borderRightWidth: this.type === "VECTOR" ? 0 : this.type === "REGULAR_POLYGON" ? `${(this.boundingBox.width - (this.boundingBox.width * 0.15)) / 2}px` : `${this.individualStrokeWeights?.right || this.borderWidth}px`,
                     borderBottomWidth: this.type === "VECTOR" ? 0 : this.type === "REGULAR_POLYGON" ? `${this.boundingBox.width * 0.866}px` : `${this.individualStrokeWeights?.bottom || this.borderWidth}px`,
@@ -201,6 +203,7 @@ export class Frame {
                     alignContent: this.counterAxisAlignContent === 'AUTO' ? 'stretch' : 'flex-start',
                     columnGap: `${this.counterAxisSpacing || 0}px`,
                     rowGap: `${this.counterAxisSpacing || 0}px`,
+                    
                     // marginBottom: this.type === "VECTOR" ? `${this.boundingBox.height * 0.01}px` : '0',
                 },
             },

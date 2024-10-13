@@ -4,7 +4,7 @@ import { Fill } from "./Paint";
 export interface FrameProps {
     id: string;
     name: string;
-    type: "FRAME" | "RECTANGLE" | "ELLIPSE" | "VECTOR" | "REGULAR_POLYGON";
+    type: "FRAME" | "RECTANGLE" | "ELLIPSE" | "VECTOR" | "REGULAR_POLYGON" | "TEXT" | "LINE";
     absoluteBoundingBox: Rectangle;
     fills: Fill[];
     strokes: Fill[];

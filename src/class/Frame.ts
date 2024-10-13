@@ -35,12 +35,12 @@ export class Frame {
     children: FrameProps[];
     frame: FrameProps;
     visible: boolean;
-    type: "FRAME" | "RECTANGLE" | "ELLIPSE" | "VECTOR" | "REGULAR_POLYGON";
+    type: "FRAME" | "RECTANGLE" | "ELLIPSE" | "VECTOR" | "REGULAR_POLYGON" | "LINE" | "TEXT";
     opacity?: number;
     rotationInRadians?: number;
 
 
-    constructor(frame: FrameProps, image?: string) {
+    constructor(frame: FrameProps) {
         this.frame = frame;
         this.boundingBox = frame?.absoluteBoundingBox;
         this.fill = frame?.fills || [];
@@ -68,7 +68,7 @@ export class Frame {
         this.type = frame?.type;
         this.opacity = frame?.opacity;
     }
-    private setBackground(fill: Fill[]) {
+    private setColor(fill: Fill[]) {
         if (fill[0]?.type === 'SOLID') {
             return `rgba(${fill[0].color.r * 255}, ${fill[0].color.g * 255}, ${fill[0].color.b * 255}, ${fill[0].color.a})`
         }
@@ -114,10 +114,8 @@ export class Frame {
 
         // Determine if the gradient is circle or ellipse
         const distancesFromCenter = gradientHandlePositions.slice(2).map(handle => {
-            console.log(handle);
             return Math.sqrt(Math.pow(Number(handle.x.toFixed(2)) - centerX, 2) + Math.pow(Number(handle.y.toFixed(2)) - centerY, 2));
         });
-        // console.log(distancesFromCenter);
 
         // Assume circle if all distances are approximately the same
         const tolerance = 0.01; // tolerance for floating-point comparison
@@ -168,6 +166,13 @@ export class Frame {
         return Math.abs(degrees) % 90 === 0;
         }
       }
+      radToDeg(radians?: number) {
+        if(radians === undefined) {
+          return 0;
+        }
+        console.log(90 + (90 -(radians * (180 / Math.PI))))
+        return  90 + (90 -(radians * (180 / Math.PI)));
+      }
     private getWidth() {
         if(this.type === "REGULAR_POLYGON") {
             return 0;
@@ -186,11 +191,57 @@ export class Frame {
         }
         return this.boundingBox.height;
     }
+    getLineTopPosition (height?: number) {
+        if(height === undefined) {
+          return 0;
+        }
+        return height / 2;
+    }
+    getLineLeftPosition (left: number) {
+        const deg = this.radToDeg(this.rotation);
+        if(Math.round(deg) % 90 === 0) {
+          return left - this.getLineTopPosition(this.getHeight());
+        }
+        return left;
+    }
 
     private CreateReactElement(frame: FrameProps, parentBoundingBox?: Rectangle) {
         const top = parentBoundingBox ? frame.absoluteBoundingBox.y - parentBoundingBox.y : 10;
         const left = parentBoundingBox ? frame.absoluteBoundingBox.x - parentBoundingBox.x : 10;
         this.updateFrameProperties(frame);
+
+
+        if(this.type === "LINE") {
+            return createElement(
+                'hr',
+                {
+                    style: {
+                        width: `${this.getWidth() > this.getHeight() ? this.getWidth() : this.getHeight() }px`,
+                        position: parentBoundingBox ? 'absolute' : 'relative',
+                        top:  `${this.getLineTopPosition(this.getHeight()) + top}px`,      // Use calculated top position
+                        left: `${this.getLineLeftPosition(left) }px`,    // Use calculated left position
+                        transform: `rotate(${this.radToDeg(this.rotation)}deg)`,
+                        // height: `${this.getHeight()}px`,
+                    }})
+                        ;
+        }
+        if (this.type === "TEXT") {
+            return createElement(
+                'p',
+                {
+                    style: {
+                        position: parentBoundingBox ? 'absolute' : 'relative',
+                        top: `${top}px`,      // Use calculated top position
+                        left: `${left}px`,    // Use calculated left position
+                        // background: this.setColor(this.fill),
+                        width: `${this.getWidth()}px`,
+                        height: `${this.getHeight()}px`,
+                        color: this.setColor(this.fill),
+                    }
+                },
+                frame.name
+            )
+        }
 
         return frame.visible !== false && createElement(
             'div',
@@ -206,16 +257,16 @@ export class Frame {
                     borderTopRightRadius: this.type === 'ELLIPSE' ? '50%' : this.borderRadii ? `${this.borderRadii[1]}px` : `${this.borderRadius}px`,
                     borderBottomRightRadius: this.type === 'ELLIPSE' ? '50%' : this.borderRadii ? `${this.borderRadii[2]}px` : `${this.borderRadius}px`,
                     borderBottomLeftRadius: this.type === 'ELLIPSE' ? '50%' : this.borderRadii ? `${this.borderRadii[3]}px` : `${this.borderRadius}px`,
-                    background: this.type === "REGULAR_POLYGON" ? 'none' : this.setBackground(this.fill),
+                    background: this.type === "REGULAR_POLYGON" ? 'none' : this.setColor(this.fill),
                     opacity: this.fill[0]?.opacity || this.opacity || 1,
                     borderTopWidth: `${this.individualStrokeWeights?.top || this.borderWidth}px`,
                     borderRightWidth: this.type === "VECTOR" ? 0 : this.type === "REGULAR_POLYGON" ? `${(this.boundingBox.width - (this.boundingBox.width * 0.15)) / 2}px` : `${this.individualStrokeWeights?.right || this.borderWidth}px`,
                     borderBottomWidth: this.type === "VECTOR" ? 0 : this.type === "REGULAR_POLYGON" ? `${this.boundingBox.width * 0.866}px` : `${this.individualStrokeWeights?.bottom || this.borderWidth}px`,
                     borderLeftWidth: this.type === "VECTOR" ? 0 : this.type === "REGULAR_POLYGON" ? `${(this.boundingBox.width - (this.boundingBox.width * 0.15)) / 2}px` : `${this.individualStrokeWeights?.left || this.borderWidth}px`,
-                    borderTopColor: this.strokes.length > 0 ? this.setBackground(this.strokes) : 'transparent',
-                    borderRightColor: this.strokes.length > 0 ? this.setBackground(this.strokes) : 'transparent',
-                    borderLeftColor: this.strokes.length > 0 ? this.setBackground(this.strokes) : 'transparent',
-                    borderBottomColor: this.strokes.length > 0 ? this.setBackground(this.strokes) : this.type === "REGULAR_POLYGON" ? `${this.setBackground(this.fill)}` : 'transparent',
+                    borderTopColor: this.strokes.length > 0 ? this.setColor(this.strokes) : 'transparent',
+                    borderRightColor: this.strokes.length > 0 ? this.setColor(this.strokes) : 'transparent',
+                    borderLeftColor: this.strokes.length > 0 ? this.setColor(this.strokes) : 'transparent',
+                    borderBottomColor: this.strokes.length > 0 ? this.setColor(this.strokes) : this.type === "REGULAR_POLYGON" ? `${this.setColor(this.fill)}` : 'transparent',
                     borderStyle: this.strokeDashes ? 'dashed' : 'solid',
                     boxShadow: this.effect ? this.getBoxShadow(this.effect) : 'none',
                     filter: this.effect && this.effect[0]?.type === "LAYER_BLUR" ? `blur(${this.effect[0].radius}px)` : 'none',

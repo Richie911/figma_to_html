@@ -37,3 +37,9 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ## Application Shortcomings
 - Does not do well with Transform property in figma
+
+## Coverage
+- Frame
+- Rectangle
+- Ellipse
+- Triangle

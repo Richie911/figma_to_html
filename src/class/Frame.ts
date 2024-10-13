@@ -37,6 +37,7 @@ export class Frame {
     visible: boolean;
     type: "FRAME" | "RECTANGLE" | "ELLIPSE" | "VECTOR" | "REGULAR_POLYGON";
     opacity?: number;
+    rotationInRadians?: number;
 
 
     constructor(frame: FrameProps, image?: string) {
@@ -159,6 +160,31 @@ export class Frame {
     CreateReactComponent = () => {
         return this.CreateReactElement(this.frame);
     }
+    is90Or270(radians: number) {
+        // Convert radians to degrees
+        const degrees = radians * (180 / Math.PI);
+        
+        // Check if the degrees are approximately 90 or 270
+        return Math.abs(degrees) % 90 === 0;
+      }
+    private getWidth() {
+        if(this.type === "REGULAR_POLYGON") {
+            return 0;
+        }
+        if(this.rotation && this.is90Or270(this.rotation)) {
+            return this.boundingBox.height;
+        }
+        return this.boundingBox.width;
+    }
+    private getHeight() {
+        if(this.type === "REGULAR_POLYGON" || this.type === "VECTOR") {
+            return 0;
+        }
+        if(this.rotation && this.is90Or270(this.rotation)) {
+            return this.boundingBox.width;
+        }
+        return this.boundingBox.height;
+    }
 
     private CreateReactElement(frame: FrameProps, parentBoundingBox?: Rectangle) {
         const top = parentBoundingBox ? frame.absoluteBoundingBox.y - parentBoundingBox.y : 10;
@@ -169,8 +195,8 @@ export class Frame {
             'div',
             {
                 style: {
-                    width: this.type === "REGULAR_POLYGON" ? 0 : `${this.boundingBox.width}px`,
-                    height: this.type === "VECTOR" || this.type === "REGULAR_POLYGON" ? 1 : `${this.boundingBox.height}px`,
+                    width: `${this.getWidth()}px`,
+                    height: `${this.getHeight()}px`,
                     position: parentBoundingBox ? 'absolute' : 'relative',
                     top: this.type === "VECTOR" ? `${top + (this.boundingBox.height / 2) - 10}px` : `${top}px`,      // Use calculated top position
                     left: `${left}px`,    // Use calculated left position

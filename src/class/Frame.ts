@@ -164,8 +164,9 @@ export class Frame {
         // Convert radians to degrees
         const degrees = radians * (180 / Math.PI);
         
-        // Check if the degrees are approximately 90 or 270
+        if(Math.abs(degrees) === 90 || Math.abs(degrees) === -90) {
         return Math.abs(degrees) % 90 === 0;
+        }
       }
     private getWidth() {
         if(this.type === "REGULAR_POLYGON") {

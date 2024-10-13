@@ -189,7 +189,7 @@ export class Element {
         column-gap: ${this.counterAxisSpacing || 0}px;
         row-gap: ${this.counterAxisSpacing || 0}px;
     ">
-        ${this.CreateHtmlChildren(this.children)}
+        ${this.CreateHtmlChildren(this.children, frame.absoluteBoundingBox)}
     </div>`;
     }
 
@@ -225,10 +225,10 @@ export class Element {
             return Div.CreateReactElement(child, parentBoundingBox);
         }).filter((element) => element !== false);
     }
-    private CreateHtmlChildren(children: ElementProps[]): string {
+    private CreateHtmlChildren(children: ElementProps[], parentBoundingBox: Rectangle ): string {
         return children.map((child) => {
             let Div = new Element(child);
-            return Div.getHtmlElement(child);
+            return Div.getHtmlElement(child,parentBoundingBox );
         }).join('');
     }
     CreateReactComponent = () => {

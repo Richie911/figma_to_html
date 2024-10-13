@@ -1,6 +1,8 @@
 'use client';
 import { Element } from '@/class/Frame';
+import SyntaxHighlighter from 'react-syntax-highlighter';
 import { useGetFrameDetailsQuery, useGetImageQuery } from '../../service/figma';
+import { nightOwl } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 export default function Home() {
 	const { isSuccess, data: figmaData } = useGetFrameDetailsQuery({});
@@ -37,7 +39,12 @@ export default function Home() {
 		padding: '20px',
 		gap: '20px'
 	}}>
-	{isSuccess && Div.CreateReactComponent()}
-	{isSuccess && Div.createHtmlComponent()}
+		{isSuccess && Div.CreateReactComponent()}
+		{
+			isSuccess && <SyntaxHighlighter language='css' style={nightOwl} wrapLines={true} wrapLongLines={true} >
+				{Div.createHtmlComponent()}
+			</SyntaxHighlighter>
+		}
+
 	</div>);
 }

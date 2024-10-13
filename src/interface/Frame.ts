@@ -1,7 +1,9 @@
 import { Effect } from "./Effect";
 import { Fill } from "./Paint";
+import { Rectangle } from "./Rectangle";
+import { TextProps } from "./Text";
 
-export interface FrameProps {
+export interface ElementProps {
     id: string;
     name: string;
     type: "FRAME" | "RECTANGLE" | "ELLIPSE" | "VECTOR" | "REGULAR_POLYGON" | "TEXT" | "LINE";
@@ -32,7 +34,8 @@ export interface FrameProps {
     primaryAxisAlignItems?: "CENTER" | "MAX";
     counterAxisSpacing?: number;
     counterAxisAlignContent?: "AUTO",
-    children: FrameProps[];
+    children: ElementProps[];
     visible: boolean;
     opacity?: number;
+    style: TextProps;
 }

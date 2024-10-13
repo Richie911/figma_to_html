@@ -1,7 +1,6 @@
 'use client';
 import { Element } from '@/class/Frame';
 import { useGetFrameDetailsQuery, useGetImageQuery } from '../../service/figma';
-import { createElement } from 'react';
 
 export default function Home() {
 	const { isSuccess, data: figmaData } = useGetFrameDetailsQuery({});
@@ -12,6 +11,9 @@ export default function Home() {
 	// 	console.log(data);
 	// }
 	let Div = new Element(figmaData?.nodes['16:2'].document);
+	// if(isSuccess) {
+	// 	console.log(Div.createHtmlComponent());
+	// }
 
 	// return (
 	// 	<div>
@@ -29,5 +31,13 @@ export default function Home() {
 	// 	createElement('i', null, 'data'),
 	// 	'. Welcome!'
 	// );
-	return isSuccess && Div.CreateReactComponent();
+	return (<div style={{
+		display: 'flex',
+		flexDirection: 'column',
+		padding: '20px',
+		gap: '20px'
+	}}>
+	{isSuccess && Div.CreateReactComponent()}
+	{isSuccess && Div.createHtmlComponent()}
+	</div>);
 }

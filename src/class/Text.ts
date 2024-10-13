@@ -18,7 +18,7 @@ export class Text {
     top: number;
     left: number;
     
-    constructor(text: TextProps, width: number, height: number, color: string, position:string, top: number, left: number, textContent: string) {
+    constructor( width: number, height: number, color: string, position:string, top: number, left: number, textContent: string, text: TextProps,) {
         this.fontFamily = text.fontFamily;
         this.fontSize = text.fontSize;
         this.letterSpacing = text.letterSpacing;
@@ -34,9 +34,7 @@ export class Text {
         this.top = top;
         this.left = left;
     }
-    getHTML() {
-        return `<p style="font-family: ${this.fontFamily}; font-size: ${this.fontSize}px; letter-spacing: ${this.letterSpacing}px; line-height: ${this.lineHeightPx}px; font-weight: ${this.fontWeight}; text-align: ${this.textAlignHorizontal};">${this.name}</p>`;
-    }
+
     getReactComponent() {
         return  createElement(
             'p',
@@ -59,5 +57,8 @@ export class Text {
             this.name
 
         )
+    }
+    getHTML() {
+        return `<p style="font-family: ${this.fontFamily}; font-size: ${this.fontSize}px; letter-spacing: ${this.letterSpacing}px; line-height: ${this.lineHeightPx}px; font-weight: ${this.fontWeight}; text-align: ${this.textAlignHorizontal}; color: ${this.color}; width: ${this.width}px; height: ${this.height}px; position: ${this.position}; top: ${this.top}px; left: ${this.left}px;">${this.name}</p>`;
     }
 }

@@ -76,7 +76,7 @@ export class Frame {
             const fills = fill[0].gradientStops.map((stop) => {
                 return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
             });
-            return `linear-gradient(${this.calculateGradientDirection(fill[0].gradientHandlePositions)}deg, ${fills.join(', ')})`;
+            return `linear-gradient(${this.calculateGradientDirection(fill[0].gradientHandlePositions)}, ${fills.join(', ')})`;
         }
         else if (fill[0]?.type === 'GRADIENT_RADIAL') {
             const fills = fill[0].gradientStops.map((stop) => {
@@ -142,7 +142,7 @@ export class Frame {
         const angleInRadians = Math.atan2(vectorY, vectorX);
         const angleInDegrees = (angleInRadians * 180) / Math.PI;
 
-        return `${Math.round(angleInDegrees) + 90}deg`;
+        return `${Math.round(angleInDegrees) - 90}deg`;
     }
 
     private getBoxShadow(effects: Effect[]) {

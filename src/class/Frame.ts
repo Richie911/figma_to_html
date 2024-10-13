@@ -1,11 +1,15 @@
 
 import { createElement } from 'react';
 import { Effect } from "@/interface/Effect";
-import { FrameProps } from "@/interface/Frame";
+import { ElementProps } from "@/interface/Frame";
 import { Fill, GradientPosition } from "@/interface/Paint";
+import {  Text } from './Text';
+import { Rectangle } from '@/interface/Rectangle';
+import { Line } from './Line';
+import { getBoxShadow, getHeight, getWidth, setColor } from '@/utils/sharedMethods';
 
-export class Frame {
-    boundingBox: FrameProps['absoluteBoundingBox'];
+export class Element {
+    boundingBox: ElementProps['absoluteBoundingBox'];
     rotation?: number;
     borderRadius?: number;
     borderWidth?: number;
@@ -32,15 +36,17 @@ export class Frame {
     primaryAxisAlignItems?: "CENTER" | "MAX";
     counterAxisSpacing?: number;
     counterAxisAlignContent?: "AUTO";
-    children: FrameProps[];
-    frame: FrameProps;
+    children: ElementProps[];
+    frame: ElementProps;
     visible: boolean;
     type: "FRAME" | "RECTANGLE" | "ELLIPSE" | "VECTOR" | "REGULAR_POLYGON" | "LINE" | "TEXT";
     opacity?: number;
     rotationInRadians?: number;
+    textContent: string;
+    strokeWeight?: number;
 
 
-    constructor(frame: FrameProps) {
+    constructor(frame: ElementProps) {
         this.frame = frame;
         this.boundingBox = frame?.absoluteBoundingBox;
         this.fill = frame?.fills || [];
@@ -67,188 +73,32 @@ export class Frame {
         this.visible = frame?.visible;
         this.type = frame?.type;
         this.opacity = frame?.opacity;
-    }
-    private setColor(fill: Fill[]) {
-        if (fill[0]?.type === 'SOLID') {
-            return `rgba(${fill[0].color.r * 255}, ${fill[0].color.g * 255}, ${fill[0].color.b * 255}, ${fill[0].color.a})`
-        }
-        else if (fill[0]?.type === 'GRADIENT_LINEAR') {
-            const fills = fill[0].gradientStops.map((stop) => {
-                return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
-            });
-            return `linear-gradient(${this.calculateGradientDirection(fill[0].gradientHandlePositions)}, ${fills.join(', ')})`;
-        }
-        else if (fill[0]?.type === 'GRADIENT_RADIAL') {
-            const fills = fill[0].gradientStops.map((stop) => {
-                return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
-            });
-            return `radial-gradient(${this.determineGradientShapeAndCenter(fill[0].gradientHandlePositions)}, ${fills.join(', ')})`;
-        }
-        else if (fill[0]?.type === 'GRADIENT_ANGULAR') {
-            const fills = fill[0].gradientStops.map((stop) => {
-                return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
-            });
-            return `conic-gradient(${fills.join(', ')})`;
-        }
-        else if (fill[0]?.type === 'GRADIENT_DIAMOND') {
-            const fills = fill[0].gradientStops.map((stop) => {
-                return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
-            });
-            return `linear-gradient( ${fills.join(', ')})`;
-        }
-        else if (fill[0]?.type === 'IMAGE') {
-            return `url(https://www.shutterstock.com/shutterstock/photos/2179364083/display_1500/stock-photo-no-picture-available-placeholder-thumbnail-icon-illustration-design-2179364083.jpg)`;
-        }
-        return '';
+        this.textContent = frame?.name;
+        this.strokeWeight = frame?.strokeWeight;
     }
 
-    private determineGradientShapeAndCenter(gradientHandlePositions: GradientPosition[]) {
-        if (!gradientHandlePositions || gradientHandlePositions.length < 2) {
-            throw new Error('Insufficient handle positions');
-        }
-
-        // Determine the center of the gradient
-        const centerHandle = gradientHandlePositions[0];
-        const centerX = Number(centerHandle.x.toFixed(2));
-        const centerY = Number(centerHandle.y.toFixed(2));
-
-        // Determine if the gradient is circle or ellipse
-        const distancesFromCenter = gradientHandlePositions.slice(2).map(handle => {
-            return Math.sqrt(Math.pow(Number(handle.x.toFixed(2)) - centerX, 2) + Math.pow(Number(handle.y.toFixed(2)) - centerY, 2));
-        });
-
-        // Assume circle if all distances are approximately the same
-        const tolerance = 0.01; // tolerance for floating-point comparison
-        const firstDistance = distancesFromCenter[0];
-        const isCircle = distancesFromCenter.every(distance => Math.abs(distance - firstDistance) < tolerance);
-
-        // Determine shape
-        const shape = isCircle ? 'circle' : 'ellipse';
-
-        return shape;
-    }
-
-    private calculateGradientDirection(gradientHandlePositions: GradientPosition[]) {
-        if (gradientHandlePositions.length < 2) {
-            throw new Error("At least two gradient handle positions are required.");
-        }
-
-        const start = gradientHandlePositions[0];
-        const end = gradientHandlePositions[1];
-        const vectorX = end.x - start.x;
-        const vectorY = end.y - start.y;
-        const angleInRadians = Math.atan2(vectorY, vectorX);
-        const angleInDegrees = (angleInRadians * 180) / Math.PI;
-
-        return `${Math.round(angleInDegrees) - 90}deg`;
-    }
-
-    private getBoxShadow(effects: Effect[]) {
-        const shadow = effects[0];
-        if (shadow?.type === 'DROP_SHADOW') {
-            return `${shadow.offset?.x}px ${shadow.offset?.y}px ${shadow.radius}px ${shadow.spread}px rgba(${shadow.color?.r * 255}, ${shadow.color?.g * 255}, ${shadow.color?.b * 255}, ${shadow.color?.a})`;
-        } else if (shadow?.type === 'INNER_SHADOW') {
-            return `${shadow.offset?.x}px ${shadow.offset?.y}px ${shadow.radius}px ${shadow.spread}px rgba(${shadow.color?.r * 255}, ${shadow.color?.g * 255}, ${shadow.color?.b * 255}, ${shadow.color?.a}) inset`;
-        } else if (shadow?.type === 'BACKGROUND_BLUR') {
-            return `${shadow.radius}px`;
-        }
-        return 'none';
-    }
-
-    CreateReactComponent = () => {
-        return this.CreateReactElement(this.frame);
-    }
-    is90Or270(radians: number) {
-        // Convert radians to degrees
-        const degrees = radians * (180 / Math.PI);
-        
-        if(Math.abs(degrees) === 90 || Math.abs(degrees) === -90) {
-        return Math.abs(degrees) % 90 === 0;
-        }
-      }
-      radToDeg(radians?: number) {
-        if(radians === undefined) {
-          return 0;
-        }
-        console.log(90 + (90 -(radians * (180 / Math.PI))))
-        return  90 + (90 -(radians * (180 / Math.PI)));
-      }
-    private getWidth() {
-        if(this.type === "REGULAR_POLYGON") {
-            return 0;
-        }
-        if(this.rotation && this.is90Or270(this.rotation)) {
-            return this.boundingBox.height;
-        }
-        return this.boundingBox.width;
-    }
-    private getHeight() {
-        if(this.type === "REGULAR_POLYGON" || this.type === "VECTOR") {
-            return 0;
-        }
-        if(this.rotation && this.is90Or270(this.rotation)) {
-            return this.boundingBox.width;
-        }
-        return this.boundingBox.height;
-    }
-    getLineTopPosition (height?: number) {
-        if(height === undefined) {
-          return 0;
-        }
-        return height / 2;
-    }
-    getLineLeftPosition (left: number) {
-        const deg = this.radToDeg(this.rotation);
-        if(Math.round(deg) % 90 === 0) {
-          return left - this.getLineTopPosition(this.getHeight());
-        }
-        return left;
-    }
-
-    private CreateReactElement(frame: FrameProps, parentBoundingBox?: Rectangle) {
+    private CreateReactElement(frame: ElementProps, parentBoundingBox?: Rectangle) {
         const top = parentBoundingBox ? frame.absoluteBoundingBox.y - parentBoundingBox.y : 10;
         const left = parentBoundingBox ? frame.absoluteBoundingBox.x - parentBoundingBox.x : 10;
+        const position = parentBoundingBox ? 'absolute' : 'relative';
         this.updateFrameProperties(frame);
-
+        
 
         if(this.type === "LINE") {
-            return createElement(
-                'hr',
-                {
-                    style: {
-                        width: `${this.getWidth() > this.getHeight() ? this.getWidth() : this.getHeight() }px`,
-                        position: parentBoundingBox ? 'absolute' : 'relative',
-                        top:  `${this.getLineTopPosition(this.getHeight()) + top}px`,      // Use calculated top position
-                        left: `${this.getLineLeftPosition(left) }px`,    // Use calculated left position
-                        transform: `rotate(${this.radToDeg(this.rotation)}deg)`,
-                        // height: `${this.getHeight()}px`,
-                    }})
-                        ;
+            const line = new Line(getWidth(this.type, this.boundingBox, this.rotation), setColor(this.strokes), position, top, left, this.rotation, this.strokeWeight);
+            return line.getReactComponent();
         }
         if (this.type === "TEXT") {
-            return createElement(
-                'p',
-                {
-                    style: {
-                        position: parentBoundingBox ? 'absolute' : 'relative',
-                        top: `${top}px`,      // Use calculated top position
-                        left: `${left}px`,    // Use calculated left position
-                        // background: this.setColor(this.fill),
-                        width: `${this.getWidth()}px`,
-                        height: `${this.getHeight()}px`,
-                        color: this.setColor(this.fill),
-                    }
-                },
-                frame.name
-            )
+            const text = new Text(frame.style, getWidth(this.type, this.boundingBox, this.rotation), getHeight(this.type, this.boundingBox , this.rotation), setColor(this.fill), position, top, left, this.textContent);
+            return text.getReactComponent();
         }
 
         return frame.visible !== false && createElement(
             'div',
             {
                 style: {
-                    width: `${this.getWidth()}px`,
-                    height: `${this.getHeight()}px`,
+                    width: `${getWidth(this.type, this.boundingBox, this.rotation)}px`,
+                    height: `${getHeight(this.type, this.boundingBox, this.rotation)}px`,
                     position: parentBoundingBox ? 'absolute' : 'relative',
                     top: this.type === "VECTOR" ? `${top + (this.boundingBox.height / 2) - 10}px` : `${top}px`,      // Use calculated top position
                     left: `${left}px`,    // Use calculated left position
@@ -257,18 +107,18 @@ export class Frame {
                     borderTopRightRadius: this.type === 'ELLIPSE' ? '50%' : this.borderRadii ? `${this.borderRadii[1]}px` : `${this.borderRadius}px`,
                     borderBottomRightRadius: this.type === 'ELLIPSE' ? '50%' : this.borderRadii ? `${this.borderRadii[2]}px` : `${this.borderRadius}px`,
                     borderBottomLeftRadius: this.type === 'ELLIPSE' ? '50%' : this.borderRadii ? `${this.borderRadii[3]}px` : `${this.borderRadius}px`,
-                    background: this.type === "REGULAR_POLYGON" ? 'none' : this.setColor(this.fill),
+                    background: this.type === "REGULAR_POLYGON" ? 'none' : setColor(this.fill),
                     opacity: this.fill[0]?.opacity || this.opacity || 1,
                     borderTopWidth: `${this.individualStrokeWeights?.top || this.borderWidth}px`,
                     borderRightWidth: this.type === "VECTOR" ? 0 : this.type === "REGULAR_POLYGON" ? `${(this.boundingBox.width - (this.boundingBox.width * 0.15)) / 2}px` : `${this.individualStrokeWeights?.right || this.borderWidth}px`,
                     borderBottomWidth: this.type === "VECTOR" ? 0 : this.type === "REGULAR_POLYGON" ? `${this.boundingBox.width * 0.866}px` : `${this.individualStrokeWeights?.bottom || this.borderWidth}px`,
                     borderLeftWidth: this.type === "VECTOR" ? 0 : this.type === "REGULAR_POLYGON" ? `${(this.boundingBox.width - (this.boundingBox.width * 0.15)) / 2}px` : `${this.individualStrokeWeights?.left || this.borderWidth}px`,
-                    borderTopColor: this.strokes.length > 0 ? this.setColor(this.strokes) : 'transparent',
-                    borderRightColor: this.strokes.length > 0 ? this.setColor(this.strokes) : 'transparent',
-                    borderLeftColor: this.strokes.length > 0 ? this.setColor(this.strokes) : 'transparent',
-                    borderBottomColor: this.strokes.length > 0 ? this.setColor(this.strokes) : this.type === "REGULAR_POLYGON" ? `${this.setColor(this.fill)}` : 'transparent',
+                    borderTopColor: this.strokes.length > 0 ? setColor(this.strokes) : 'transparent',
+                    borderRightColor: this.strokes.length > 0 ? setColor(this.strokes) : 'transparent',
+                    borderLeftColor: this.strokes.length > 0 ? setColor(this.strokes) : 'transparent',
+                    borderBottomColor: this.strokes.length > 0 ? setColor(this.strokes) : this.type === "REGULAR_POLYGON" ? `${setColor(this.fill)}` : 'transparent',
                     borderStyle: this.strokeDashes ? 'dashed' : 'solid',
-                    boxShadow: this.effect ? this.getBoxShadow(this.effect) : 'none',
+                    boxShadow: this.effect ? getBoxShadow(this.effect) : 'none',
                     filter: this.effect && this.effect[0]?.type === "LAYER_BLUR" ? `blur(${this.effect[0].radius}px)` : 'none',
                     backdropFilter: this.effect && this.effect[0]?.type === "BACKGROUND_BLUR" ? `blur(${this.effect[0].radius}px)` : 'none',
                     display: this.layoutMode ? 'flex' : 'block',
@@ -290,7 +140,7 @@ export class Frame {
     }
 
 
-    private updateFrameProperties(frame: FrameProps) {
+    private updateFrameProperties(frame: ElementProps) {
         this.boundingBox = frame.absoluteBoundingBox;
         this.fill = frame?.fills || [];
         this.strokes = frame?.strokes || [];
@@ -315,19 +165,13 @@ export class Frame {
         this.children = frame?.children || [];
     }
 
-    private CreateChildren(children: FrameProps[], parentBoundingBox: Rectangle): JSX.Element[] {
+    private CreateChildren(children: ElementProps[], parentBoundingBox: Rectangle): JSX.Element[] {
         return children.map((child) => {
-            let Div = new Frame(child);
+            let Div = new Element(child);
             return Div.CreateReactElement(child, parentBoundingBox);
         }).filter((element) => element !== false);
     }
-
-    // CreateChildren(children: FrameProps[], parentBoundingBox: Rectangle): JSX.Element[] {
-    //     return children.map((child) => {
-    //         const Div = new Frame(child);
-    //         // Pass the parent's bounding box to the child's CreateReactElement method
-    //         return Div.CreateReactElement(child, parentBoundingBox);
-    //     });
-    // }
-
+    CreateReactComponent = () => {
+        return this.CreateReactElement(this.frame);
+    }
 }

@@ -1,5 +1,5 @@
 'use client';
-import { Frame } from '@/class/Frame';
+import { Element } from '@/class/Frame';
 import { useGetFrameDetailsQuery, useGetImageQuery } from '../../service/figma';
 import { createElement } from 'react';
 
@@ -11,7 +11,7 @@ export default function Home() {
 	// if (ImageSuccess) {
 	// 	console.log(data);
 	// }
-	let Div = new Frame(figmaData?.nodes['16:2'].document);
+	let Div = new Element(figmaData?.nodes['16:2'].document);
 
 	// return (
 	// 	<div>

@@ -37,12 +37,12 @@ export default function Home() {
 		display: 'flex',
 		flexDirection: 'column',
 		padding: '20px',
-		gap: '20px'
+		gap: '20px',
 	}}>
 		{isSuccess && Div.CreateReactComponent()}
 		{
 			isSuccess && <SyntaxHighlighter language='css' style={nightOwl} wrapLines={true} wrapLongLines={true} >
-				{Div.createHtmlComponent()}
+				{Div.createHTMLCSSReact().html}
 			</SyntaxHighlighter>
 		}
 

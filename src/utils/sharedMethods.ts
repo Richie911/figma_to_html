@@ -2,23 +2,30 @@ import { Effect } from "@/interface/Effect";
 import { Fill, GradientPosition } from "@/interface/Paint";
 import { Rectangle } from "@/interface/Rectangle";
 
+export function roundNumbers(num?: number) {
+    if(num === undefined) {
+        return 0;
+    }
+    return Math.round(num);
+}
+
 export function getWidth(type: string,  boundingBox: Rectangle, rotation?: number) {
     if(type === "REGULAR_POLYGON") {
         return 0;
     }
     if(rotation && is90Or270(rotation)) {
-        return boundingBox.height;
+        return roundNumbers(boundingBox.height) ;
     }
-    return boundingBox.width;
+    return roundNumbers(boundingBox.width);
 }
 export function getHeight(type: string, boundingBox: Rectangle, rotation?: number,) {
     if(type === "REGULAR_POLYGON" || type === "VECTOR") {
         return 0;
     }
     if(rotation && is90Or270(rotation)) {
-        return boundingBox.width;
+        return roundNumbers(boundingBox.width);
     }
-    return boundingBox.height;
+    return roundNumbers(boundingBox.height);
 }
 export function is90Or270(radians: number) {
     // Convert radians to degrees
@@ -33,7 +40,6 @@ export function is90Or270(radians: number) {
     if(radians === undefined) {
       return 0;
     }
-    console.log(90 + (90 -(radians * (180 / Math.PI))))
     return  90 + (90 -(radians * (180 / Math.PI)));
   }
 export function getLineTopPosition (height?: number) {
@@ -91,29 +97,29 @@ export function calculateGradientDirection(gradientHandlePositions: GradientPosi
 }
 export function setColor(fill: Fill[]) {
     if (fill[0]?.type === 'SOLID') {
-        return `rgba(${fill[0].color.r * 255}, ${fill[0].color.g * 255}, ${fill[0].color.b * 255}, ${fill[0].color.a})`
+        return `rgba(${roundNumbers(fill[0].color.r * 255)}, ${roundNumbers(fill[0].color.g * 255)}, ${roundNumbers(fill[0].color.b * 255)}, ${roundNumbers(fill[0].color.a)})`
     }
     else if (fill[0]?.type === 'GRADIENT_LINEAR') {
         const fills = fill[0].gradientStops.map((stop) => {
-            return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
+            return `rgba(${roundNumbers(stop.color.r * 255)}, ${roundNumbers(stop.color.g * 255)}, ${roundNumbers(stop.color.b * 255)}, ${roundNumbers(stop.color.a)}) ${roundNumbers(stop.position * 100)}%`;
         });
         return `linear-gradient(${calculateGradientDirection(fill[0].gradientHandlePositions)}, ${fills.join(', ')})`;
     }
     else if (fill[0]?.type === 'GRADIENT_RADIAL') {
         const fills = fill[0].gradientStops.map((stop) => {
-            return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
+            return `rgba(${roundNumbers(stop.color.r * 255)}, ${roundNumbers(stop.color.g * 255)}, ${roundNumbers(stop.color.b * 255)}, ${roundNumbers(stop.color.a)}) ${roundNumbers(stop.position * 100)}%`;
         });
         return `radial-gradient(${determineGradientShapeAndCenter(fill[0].gradientHandlePositions)}, ${fills.join(', ')})`;
     }
     else if (fill[0]?.type === 'GRADIENT_ANGULAR') {
         const fills = fill[0].gradientStops.map((stop) => {
-            return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
+            return `rgba(${roundNumbers(stop.color.r * 255)}, ${roundNumbers(stop.color.g * 255)}, ${roundNumbers(stop.color.b * 255)}, ${roundNumbers(stop.color.a)}) ${roundNumbers(stop.position * 100)}%`;
         });
         return `conic-gradient(${fills.join(', ')})`;
     }
     else if (fill[0]?.type === 'GRADIENT_DIAMOND') {
         const fills = fill[0].gradientStops.map((stop) => {
-            return `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`;
+            return `rgba(${roundNumbers(stop.color.r * 255)}, ${roundNumbers(stop.color.g * 255)}, ${roundNumbers(stop.color.b * 255)}, ${roundNumbers(stop.color.a)}) ${roundNumbers(stop.position * 100)}%`;
         });
         return `linear-gradient( ${fills.join(', ')})`;
     }

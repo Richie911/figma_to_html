@@ -1,5 +1,6 @@
 import { radToDeg } from "@/utils/sharedMethods";
 import { createElement } from "react";
+import { adjectives, animals, colors, uniqueNamesGenerator } from "unique-names-generator";
 
 export class Line {
     width: number;
@@ -20,8 +21,11 @@ export class Line {
         this.rotation = rotation
     }
     
-    getHTML() {
+    getInlineHTMLCSS() {
         return `<hr style="color: ${this.color}; width: ${this.width}px; position: ${this.position}; top: ${this.top}px; left: ${this.left}px; transform: rotate(${radToDeg(this.rotation)}deg); />`;
+    }
+    getInlineHTMLCSSReact() {
+        return `<hr style={{color: ${this.color}, width: ${this.width}px, position: ${this.position}, top: ${this.top}px, left: ${this.left}px, transform: rotate(${radToDeg(this.rotation)}deg)}} />`;
     }
     getReactComponent() {
         return createElement(
@@ -39,5 +43,23 @@ export class Line {
             }
             }
         );
+    }
+    getHTMLCSSReact() {
+        const className = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals], style: 'capital' });
+        const html = `<hr className="classes.line${className}" />`;
+        const css =  `.line${className} {
+            background: ${this.color};
+            width: ${this.width}px;
+            height: ${this.height}px;
+            position: ${this.position};
+            top: ${this.top}px;
+            left: ${this.left}px;
+            transform: rotate(${radToDeg(this.rotation)}deg);
+            border: 0;
+        }`;
+        return { html, css };
+    }
+    getHTML() {
+        
     }
 }

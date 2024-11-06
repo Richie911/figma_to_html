@@ -1,17 +1,23 @@
 // Need to use the React-specific entry point to import createApi
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { getCookie } from 'cookies-next';
 
 // Define a service using a base URL and expected endpoints
+let nodeId = getCookie('nodeId') || '';
+nodeId = nodeId.replace(':', '-');
+const token = getCookie('figmaToken') || '';
+const param = getCookie('param') || '';
+
 export const figmaApi = createApi({
     reducerPath: 'figmaApi',
     baseQuery: fetchBaseQuery({
         baseUrl: 'https://api.figma.com/v1/', headers: {
-            'X-Figma-Token': "figd_ugXJbQs0g0eWg8IoTfILoZ_bj_27H9gpXbGrADXD",
+            'X-Figma-Token': `${token}`,
         }
     }),
     endpoints: (builder) => ({
         getFrameDetails: builder.query({
-            query: () => ("files/YEkcdqmEUTP5i2qr00TZB9/nodes?ids=16-2"),
+            query: () => (`files/${param}/nodes?ids=${nodeId}`),
         }),
         getImage: builder.query({
             query: (id: string) => `images/YEkcdqmEUTP5i2qr00TZB9?ids=16-2`,

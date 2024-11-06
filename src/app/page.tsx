@@ -1,31 +1,48 @@
 'use client'
 
 import { useState } from 'react';
+import { setCookie,deleteCookie } from 'cookies-next';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [figmaUrl, setFigmaUrl] = useState('');
   const [token, setToken] = useState('');
-  const [param1, setParam1] = useState('');
+  const [param, setParam] = useState('');
   const [nodeId, setNodeId] = useState<string | null>('');
+  const router = useRouter();
 
   const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
+    if(!figmaUrl || !token) {
+      alert("Please fill in all the fields.");
+      return
+    }
     
     try {
       const url = new URL(figmaUrl);
       const pathSegments = url.pathname.split('/');
       const queryParams = new URLSearchParams(url.search);
 
-      // Extracting param1 from the URL path
-      const param1Value = pathSegments[2];
-      setParam1(param1Value);
+      // Extracting param from the URL path
+      const paramValue = pathSegments[2];
+      setParam(paramValue);
 
       // Extracting node-id from the URL query
-      const nodeIdValue = queryParams.get('node-id');
+      const nodeIdValue = queryParams.get('node-id')?.replace('-', ':') || '';
       setNodeId(nodeIdValue);
+      if(nodeIdValue && nodeIdValue?.length > 0 && paramValue.length > 0) {
+        setCookie('figmaToken', token)
+        setCookie('nodeId', nodeIdValue)
+        setCookie('param', paramValue)
+      
+      router.push('/code');
+      }
+      else {
+        alert("Please provide a valid figma url.");
+      } 
     } catch (error) {
       alert("Invalid URL format. Please check the URL and try again.");
-    }
+    }        
   };
 
   return (
@@ -56,10 +73,10 @@ export default function Home() {
         </button>
       </form>
 
-      {param1 && (
+      {param && (
         <div style={{ marginTop: '20px' }}>
           <h3>Extracted Parameters:</h3>
-          <p><strong>param1:</strong> {param1}</p>
+          <p><strong>param:</strong> {param}</p>
           <p><strong>node-id:</strong> {nodeId || 'Not provided'}</p>
         </div>
       )}
